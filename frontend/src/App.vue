@@ -1,5 +1,5 @@
 <script setup>
-import { nextTick, onMounted, ref } from 'vue'
+import { computed, nextTick, onMounted, ref } from 'vue'
 
 const tasks = ref([])
 const title = ref('')
@@ -13,6 +13,28 @@ const isAddModalOpen = ref(false)
 const titleInput = ref(null)
 const dueToasts = ref([])
 const updatingTaskId = ref(null)
+const sortBy = ref('updatedAt')
+const sortMenuOpen = ref(false)
+
+const sortedTasks = computed(() => {
+  return [...tasks.value].sort((firstTask, secondTask) => {
+    if (sortBy.value === 'dueDate') {
+      if (!firstTask.dueDate && !secondTask.dueDate) {
+        return new Date(secondTask.updatedAt).getTime() - new Date(firstTask.updatedAt).getTime()
+      }
+      if (!firstTask.dueDate) return 1
+      if (!secondTask.dueDate) return -1
+      return new Date(firstTask.dueDate).getTime() - new Date(secondTask.dueDate).getTime()
+    }
+
+    return new Date(secondTask.updatedAt).getTime() - new Date(firstTask.updatedAt).getTime()
+  })
+})
+
+function selectSort(value) {
+  sortBy.value = value
+  sortMenuOpen.value = false
+}
 
 async function readApiResponse(response, fallbackMessage) {
   const responseText = await response.text()
@@ -215,18 +237,64 @@ onMounted(loadTasks)
       </div>
 
       <div class="flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-200">
-        <div class="flex shrink-0 items-center justify-between border-b border-slate-200 px-5 py-4">
+        <div class="flex shrink-0 items-center justify-between gap-3 border-b border-slate-200 px-5 py-4">
           <h2 class="text-lg font-semibold text-slate-700">Task list</h2>
-          <span class="rounded-full bg-slate-100 px-3 py-1 text-sm font-medium text-slate-600">
-            {{ tasks.length }} {{ tasks.length === 1 ? 'task' : 'tasks' }}
-          </span>
+          <div class="flex items-center gap-2">
+            <span class="hidden rounded-full bg-slate-100 px-3 py-1 text-sm font-medium text-slate-600 sm:inline-flex">
+              {{ tasks.length }} {{ tasks.length === 1 ? 'task' : 'tasks' }}
+            </span>
+
+            <div class="relative" @keydown.esc="sortMenuOpen = false">
+              <button
+                type="button"
+                class="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                :aria-expanded="sortMenuOpen"
+                aria-haspopup="menu"
+                @click="sortMenuOpen = !sortMenuOpen"
+              >
+                <svg aria-hidden="true" viewBox="0 0 20 20" class="h-4 w-4 fill-current">
+                  <path d="M6 3a1 1 0 0 1 1 1v9.6l1.3-1.3a1 1 0 1 1 1.4 1.4l-3 3a1 1 0 0 1-1.4 0l-3-3a1 1 0 0 1 1.4-1.4L5 13.6V4a1 1 0 0 1 1-1Zm7-1a1 1 0 0 1 .7.3l3 3a1 1 0 0 1-1.4 1.4L14 5.4V15a1 1 0 1 1-2 0V5.4l-1.3 1.3a1 1 0 1 1-1.4-1.4l3-3A1 1 0 0 1 13 2Z" />
+                </svg>
+                Sort
+              </button>
+
+              <div
+                v-if="sortMenuOpen"
+                class="absolute right-0 z-20 mt-2 w-52 overflow-hidden rounded-xl bg-white p-1.5 shadow-xl ring-1 ring-slate-200"
+                role="menu"
+              >
+                <button
+                  type="button"
+                  role="menuitemradio"
+                  :aria-checked="sortBy === 'updatedAt'"
+                  class="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm transition hover:bg-slate-100"
+                  :class="sortBy === 'updatedAt' ? 'font-semibold text-indigo-700' : 'text-slate-700'"
+                  @click="selectSort('updatedAt')"
+                >
+                  Update date
+                  <span v-if="sortBy === 'updatedAt'" aria-hidden="true">✓</span>
+                </button>
+                <button
+                  type="button"
+                  role="menuitemradio"
+                  :aria-checked="sortBy === 'dueDate'"
+                  class="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm transition hover:bg-slate-100"
+                  :class="sortBy === 'dueDate' ? 'font-semibold text-indigo-700' : 'text-slate-700'"
+                  @click="selectSort('dueDate')"
+                >
+                  Due date
+                  <span v-if="sortBy === 'dueDate'" aria-hidden="true">✓</span>
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
 
         <p v-if="error" class="mx-4 mt-4 shrink-0 rounded-lg bg-red-50 p-3 text-sm text-red-700 ring-1 ring-red-200">
           {{ error }}
         </p>
 
-        <div class="min-h-0 flex-1 overflow-y-auto p-4 [scrollbar-gutter:stable] sm:p-5">
+        <div class="task-scroll min-h-0 flex-1 overflow-y-auto overscroll-contain p-4 sm:p-5">
           <div v-if="loading" class="flex h-full min-h-40 items-center justify-center text-slate-500">
             Loading tasks...
           </div>
@@ -241,7 +309,7 @@ onMounted(loadTasks)
 
           <ul v-else class="space-y-3">
         <li
-          v-for="task in tasks"
+          v-for="task in sortedTasks"
           :key="task.id"
           class="rounded-xl bg-slate-50 p-5 ring-1 ring-slate-200 transition hover:bg-white hover:shadow-sm"
         >
