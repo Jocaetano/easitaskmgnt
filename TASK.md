@@ -19,7 +19,8 @@ Request body:
 ```json
 {
   "title": "Finish the assignment",
-  "description": "Complete and submit the Task Manager project"
+  "description": "Complete and submit the Task Manager project",
+  "dueDate": "2026-10-05T18:00:00.000Z"
 }
 ```
 
@@ -30,7 +31,9 @@ The server must create and return a task with the following shape:
   "id": 1,
   "title": "Finish the assignment",
   "description": "Complete and submit the Task Manager project",
-  "status": "pending"
+  "status": "pending",
+  "dueDate": "2026-10-05T18:00:00.000Z",
+  "updatedAt": "2026-10-04T20:00:00.000Z"
 }
 ```
 
@@ -39,7 +42,10 @@ Requirements:
 - Generate a unique `id` for each task.
 - Require a non-empty `title`.
 - Accept an optional `description` string.
+- Accept an optional valid `dueDate`.
+- Set `updatedAt` when the task is created or changed.
 - Set the initial `status` to `pending`.
+- Support `pending`, `in-progress`, and `completed` task statuses.
 - Return an appropriate validation error when the title is missing or invalid.
 
 #### `GET /tasks`
@@ -54,7 +60,9 @@ Example response:
     "id": 1,
     "title": "Finish the assignment",
     "description": "Complete and submit the Task Manager project",
-    "status": "pending"
+    "status": "pending",
+    "dueDate": "2026-10-05T18:00:00.000Z",
+    "updatedAt": "2026-10-04T20:00:00.000Z"
   }
 ]
 ```
@@ -65,18 +73,25 @@ Task data may be stored in memory; a database is not required.
 
 Build a user interface that includes:
 
-- A form with a task-title input, description field, and submit button.
+- A form with task-title, description, and due-date fields plus a submit button.
 - A list of all tasks returned by the backend.
 - The title, description, and current status of each task.
 - A clear empty state when no tasks exist.
 - Basic loading and error feedback.
+- Toast reminders on initial load for pending tasks that are overdue or due within 24 hours.
 - A responsive layout that works on mobile and desktop screens.
 
 After a task is added, update the displayed list without requiring a page refresh.
 
-## Optional bonus
+## Task status workflow
 
-Add a **Mark as Completed** feature.
+Allow users to move tasks through the following workflow:
+
+```text
+pending → in-progress → completed
+```
+
+A pending task has a Play action that starts it. An in-progress task has a Pause action that moves it back to pending and a Complete action that finishes it.
 
 Suggested API endpoint:
 
@@ -92,7 +107,7 @@ Suggested request body:
 }
 ```
 
-The frontend should provide a button that marks a pending task as completed and immediately reflects the updated status.
+The frontend should immediately reflect every status change.
 
 ## Technical expectations
 

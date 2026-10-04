@@ -17,16 +17,24 @@ app.get('/tasks', (_request, response) => {
 app.post('/tasks', (request, response) => {
   const title = request.body.title?.trim()
   const description = request.body.description?.trim() || ''
+  const dueDate = request.body.dueDate ? new Date(request.body.dueDate) : null
 
   if (!title) {
     return response.status(400).json({ message: 'Title is required.' })
   }
 
+  if (dueDate && Number.isNaN(dueDate.getTime())) {
+    return response.status(400).json({ message: 'Due date is invalid.' })
+  }
+
+  const now = new Date().toISOString()
   const task = {
     id: nextTaskId++,
     title,
     description,
     status: 'pending',
+    dueDate: dueDate?.toISOString() || null,
+    updatedAt: now,
   }
 
   tasks.push(task)
@@ -41,11 +49,12 @@ app.patch('/tasks/:id', (request, response) => {
     return response.status(404).json({ message: 'Task not found.' })
   }
 
-  if (!['pending', 'completed'].includes(request.body.status)) {
-    return response.status(400).json({ message: 'Status must be pending or completed.' })
+  if (!['pending', 'in-progress', 'completed'].includes(request.body.status)) {
+    return response.status(400).json({ message: 'Status must be pending, in-progress, or completed.' })
   }
 
   task.status = request.body.status
+  task.updatedAt = new Date().toISOString()
   return response.json(task)
 })
 
