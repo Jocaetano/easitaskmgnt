@@ -168,7 +168,7 @@ onMounted(loadTasks)
 </script>
 
 <template>
-  <main class="min-h-screen bg-slate-100 px-4 py-10 text-slate-900 sm:px-6">
+  <main class="h-dvh overflow-hidden bg-slate-100 px-4 py-4 text-slate-900 sm:px-6 sm:py-6">
     <div class="fixed right-4 top-4 z-40 flex w-[calc(100%-2rem)] max-w-sm flex-col gap-3" aria-live="polite">
       <div
         v-for="toast in dueToasts"
@@ -197,8 +197,8 @@ onMounted(loadTasks)
       </div>
     </div>
 
-    <section class="mx-auto max-w-4xl">
-      <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+    <section class="mx-auto flex h-full max-w-4xl flex-col">
+      <div class="mb-5 flex shrink-0 flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p class="text-sm font-semibold uppercase tracking-wider text-indigo-600">Task manager</p>
           <h1 class="mt-1 text-3xl font-bold">Your tasks</h1>
@@ -214,34 +214,36 @@ onMounted(loadTasks)
         </button>
       </div>
 
-      <div class="mb-4 flex items-center justify-between">
-        <h2 class="text-lg font-semibold text-slate-700">Task list</h2>
-        <span class="rounded-full bg-white px-3 py-1 text-sm font-medium text-slate-600 shadow-sm">
-          {{ tasks.length }} {{ tasks.length === 1 ? 'task' : 'tasks' }}
-        </span>
-      </div>
+      <div class="flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-200">
+        <div class="flex shrink-0 items-center justify-between border-b border-slate-200 px-5 py-4">
+          <h2 class="text-lg font-semibold text-slate-700">Task list</h2>
+          <span class="rounded-full bg-slate-100 px-3 py-1 text-sm font-medium text-slate-600">
+            {{ tasks.length }} {{ tasks.length === 1 ? 'task' : 'tasks' }}
+          </span>
+        </div>
 
-      <p v-if="error" class="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-700 ring-1 ring-red-200">
-        {{ error }}
-      </p>
+        <p v-if="error" class="mx-4 mt-4 shrink-0 rounded-lg bg-red-50 p-3 text-sm text-red-700 ring-1 ring-red-200">
+          {{ error }}
+        </p>
 
-      <div v-if="loading" class="rounded-2xl bg-white p-8 text-center text-slate-500 shadow-sm">
-        Loading tasks...
-      </div>
+        <div class="min-h-0 flex-1 overflow-y-auto p-4 [scrollbar-gutter:stable] sm:p-5">
+          <div v-if="loading" class="flex h-full min-h-40 items-center justify-center text-slate-500">
+            Loading tasks...
+          </div>
 
-      <div v-else-if="tasks.length === 0" class="rounded-2xl border-2 border-dashed border-slate-300 p-10 text-center">
-        <p class="font-semibold text-slate-700">No tasks yet</p>
-        <p class="mt-1 text-sm text-slate-500">Create your first task to get started.</p>
-        <button type="button" class="mt-4 font-semibold text-indigo-600 hover:text-indigo-700" @click="openAddModal">
-          Add your first task
-        </button>
-      </div>
+          <div v-else-if="tasks.length === 0" class="flex h-full min-h-52 flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-300 p-10 text-center">
+            <p class="font-semibold text-slate-700">No tasks yet</p>
+            <p class="mt-1 text-sm text-slate-500">Create your first task to get started.</p>
+            <button type="button" class="mt-4 font-semibold text-indigo-600 hover:text-indigo-700" @click="openAddModal">
+              Add your first task
+            </button>
+          </div>
 
-      <ul v-else class="space-y-3">
+          <ul v-else class="space-y-3">
         <li
           v-for="task in tasks"
           :key="task.id"
-          class="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200"
+          class="rounded-xl bg-slate-50 p-5 ring-1 ring-slate-200 transition hover:bg-white hover:shadow-sm"
         >
           <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div class="min-w-0">
@@ -314,7 +316,9 @@ onMounted(loadTasks)
             </div>
           </div>
         </li>
-      </ul>
+          </ul>
+        </div>
+      </div>
     </section>
 
     <div
@@ -328,7 +332,7 @@ onMounted(loadTasks)
         role="dialog"
         aria-modal="true"
         aria-labelledby="add-task-title"
-        class="w-full rounded-t-2xl bg-white p-6 shadow-2xl sm:max-w-lg sm:rounded-2xl"
+        class="max-h-dvh w-full overflow-y-auto rounded-t-2xl bg-white p-6 shadow-2xl sm:max-h-[calc(100dvh-2rem)] sm:max-w-lg sm:rounded-2xl"
       >
         <div class="flex items-start justify-between gap-4">
           <div>
