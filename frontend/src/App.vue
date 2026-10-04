@@ -15,6 +15,8 @@ const dueToasts = ref([])
 const updatingTaskId = ref(null)
 const sortBy = ref('updatedAt')
 const sortMenuOpen = ref(false)
+const expandedDescriptionIds = ref(new Set())
+const descriptionPreviewLength = 160
 
 const sortedTasks = computed(() => {
   return [...tasks.value].sort((firstTask, secondTask) => {
@@ -34,6 +36,32 @@ const sortedTasks = computed(() => {
 function selectSort(value) {
   sortBy.value = value
   sortMenuOpen.value = false
+}
+
+function isLongDescription(description) {
+  return description.length > descriptionPreviewLength
+}
+
+function isDescriptionExpanded(taskId) {
+  return expandedDescriptionIds.value.has(taskId)
+}
+
+function shortDescription(description) {
+  const preview = description.slice(0, descriptionPreviewLength)
+  const lastSpace = preview.lastIndexOf(' ')
+  return lastSpace > descriptionPreviewLength * 0.7 ? preview.slice(0, lastSpace) : preview
+}
+
+function toggleDescription(taskId) {
+  const nextExpandedIds = new Set(expandedDescriptionIds.value)
+
+  if (nextExpandedIds.has(taskId)) {
+    nextExpandedIds.delete(taskId)
+  } else {
+    nextExpandedIds.add(taskId)
+  }
+
+  expandedDescriptionIds.value = nextExpandedIds
 }
 
 async function readApiResponse(response, fallbackMessage) {
@@ -326,9 +354,22 @@ onMounted(loadTasks)
                   {{ statusLabel(task.status) }}
                 </span>
               </div>
-              <p v-if="task.description" class="mt-2 whitespace-pre-wrap text-sm text-slate-500">
-                {{ task.description }}
-              </p>
+              <div v-if="task.description" class="mt-2 text-sm text-slate-500">
+                <span class="whitespace-pre-wrap">{{
+                  isLongDescription(task.description) && !isDescriptionExpanded(task.id)
+                    ? shortDescription(task.description)
+                    : task.description
+                }}</span>
+                <button
+                  v-if="isLongDescription(task.description)"
+                  type="button"
+                  class="ml-1 inline font-semibold text-indigo-600 hover:text-indigo-800 hover:underline focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1"
+                  :aria-label="isDescriptionExpanded(task.id) ? `Shorten description for ${task.title}` : `Expand description for ${task.title}`"
+                  @click="toggleDescription(task.id)"
+                >
+                  {{ isDescriptionExpanded(task.id) ? 'Short' : '...' }}
+                </button>
+              </div>
               <div class="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500">
                 <span v-if="task.dueDate" :class="{ 'font-semibold text-red-600': isOverdue(task.dueDate) && task.status !== 'completed' }">
                   Due {{ formatDate(task.dueDate) }}
