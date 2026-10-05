@@ -10,6 +10,15 @@ describe('task API', () => {
     app = createApp()
   })
 
+  it('serves Swagger UI and the OpenAPI schema', async () => {
+    const schema = await request(app).get('/api-docs.json').expect(200)
+    assert.equal(schema.body.openapi, '3.1.0')
+    assert.ok(schema.body.paths['/tasks'])
+
+    const docs = await request(app).get('/api-docs/').expect(200)
+    assert.match(docs.text, /Task Manager API Docs/)
+  })
+
   it('starts with an empty task list', async () => {
     const response = await request(app).get('/tasks').expect(200)
     assert.deepEqual(response.body, [])

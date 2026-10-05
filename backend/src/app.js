@@ -1,5 +1,7 @@
 import cors from 'cors'
 import express from 'express'
+import swaggerUi from 'swagger-ui-express'
+import { openApiSpec } from './openapi.js'
 
 export function createApp() {
   const app = express()
@@ -8,6 +10,10 @@ export function createApp() {
 
   app.use(cors())
   app.use(express.json())
+  app.get('/api-docs.json', (_request, response) => response.json(openApiSpec))
+  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(openApiSpec, {
+    customSiteTitle: 'Task Manager API Docs',
+  }))
 
   app.get('/tasks', (_request, response) => {
     response.json(tasks)
