@@ -9,4 +9,7 @@ export default defineConfig({
       '/tasks': 'http://localhost:3000',
     },
   },
+  test: {
+    environment: 'jsdom',
+  },
 })
