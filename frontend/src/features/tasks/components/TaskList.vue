@@ -24,7 +24,9 @@ const sortedTasks = computed(() => sortTasks(props.tasks, sortBy.value))
         <span class="hidden rounded-full bg-slate-100 px-3 py-1 text-sm font-medium text-slate-600 sm:inline-flex">
           {{ tasks.length }} {{ tasks.length === 1 ? 'task' : 'tasks' }}
         </span>
-        <TaskSortMenu v-model="sortBy" />
+        <div class="hidden sm:block">
+          <TaskSortMenu v-model="sortBy" />
+        </div>
       </div>
     </header>
 
@@ -32,7 +34,7 @@ const sortedTasks = computed(() => sortTasks(props.tasks, sortBy.value))
       {{ error }}
     </p>
 
-    <div class="task-scroll min-h-0 flex-1 overflow-y-auto overscroll-contain p-4 sm:p-5">
+    <div class="task-scroll min-h-0 flex-1 overflow-y-auto overscroll-contain p-4 pb-24 sm:p-5">
       <div v-if="loading" class="flex h-full min-h-40 items-center justify-center text-slate-500">
         Loading tasks...
       </div>
@@ -57,6 +59,20 @@ const sortedTasks = computed(() => sortTasks(props.tasks, sortBy.value))
           />
         </li>
       </ul>
+    </div>
+
+    <div class="fixed bottom-[max(1rem,env(safe-area-inset-bottom))] left-1/2 z-30 flex w-[60vw] -translate-x-1/2 items-center justify-between rounded-full bg-white/35 p-2 shadow-lg ring-1 ring-white/40 backdrop-blur-[2px] sm:hidden">
+      <button
+        type="button"
+        class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-indigo-600 text-white shadow-lg transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+        aria-label="Add task"
+        @click="$emit('add')"
+      >
+        <svg aria-hidden="true" viewBox="0 0 20 20" class="h-6 w-6 fill-current">
+          <path d="M10 3a1 1 0 0 1 1 1v5h5a1 1 0 1 1 0 2h-5v5a1 1 0 1 1-2 0v-5H4a1 1 0 1 1 0-2h5V4a1 1 0 0 1 1-1Z" />
+        </svg>
+      </button>
+      <TaskSortMenu v-model="sortBy" compact />
     </div>
   </section>
 </template>
