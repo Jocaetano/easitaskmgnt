@@ -11,14 +11,26 @@ export const openApiSpec = {
     '/tasks': {
       get: {
         tags: ['Tasks'],
-        summary: 'List all tasks',
+        summary: 'List tasks, optionally filtered by status',
+        parameters: [{
+          name: 'status',
+          in: 'query',
+          required: false,
+          schema: { $ref: '#/components/schemas/TaskStatus' },
+        }],
         responses: {
           200: {
-            description: 'All tasks',
+            description: 'Tasks matching the optional status filter',
             content: {
               'application/json': {
                 schema: { type: 'array', items: { $ref: '#/components/schemas/Task' } },
               },
+            },
+          },
+          400: {
+            description: 'Invalid status filter',
+            content: {
+              'application/json': { schema: { $ref: '#/components/schemas/Error' } },
             },
           },
         },

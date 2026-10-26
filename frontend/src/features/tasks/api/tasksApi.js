@@ -25,8 +25,9 @@ async function readResponse(response, fallbackMessage) {
   return data
 }
 
-export async function fetchTasks() {
-  const response = await fetch('/tasks')
+export async function fetchTasks(status) {
+  const query = status ? `?status=${encodeURIComponent(status)}` : ''
+  const response = await fetch(`/tasks${query}`)
   return readResponse(response, 'Unable to load tasks.')
 }
 

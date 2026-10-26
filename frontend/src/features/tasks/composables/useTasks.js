@@ -1,14 +1,16 @@
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import { changeTaskStatus, createTask, deleteTask as requestDeleteTask, fetchTasks } from '../api/tasksApi'
 
 export function useTasks() {
   const tasks = ref([])
+  const statusFilter = ref('')
   const loading = ref(true)
   const submitting = ref(false)
   const updatingTaskId = ref(null)
   const error = ref('')
   const formError = ref('')
   const dueToasts = ref([])
+  let latestLoadId = 0
 
   function showDueToasts(items) {
     const now = Date.now()
@@ -31,16 +33,20 @@ export function useTasks() {
     dueToasts.value = dueToasts.value.filter((task) => task.id !== taskId)
   }
 
-  async function loadTasks() {
+  async function loadTasks(showReminders = false) {
+    const loadId = ++latestLoadId
     loading.value = true
     error.value = ''
     try {
-      tasks.value = await fetchTasks()
-      showDueToasts(tasks.value)
+      const loadedTasks = await fetchTasks(statusFilter.value || undefined)
+      if (loadId !== latestLoadId) return
+      tasks.value = loadedTasks
+      if (showReminders) showDueToasts(loadedTasks)
     } catch (requestError) {
+      if (loadId !== latestLoadId) return
       error.value = requestError.message
     } finally {
-      loading.value = false
+      if (loadId === latestLoadId) loading.value = false
     }
   }
 
@@ -53,7 +59,7 @@ export function useTasks() {
         description: form.description,
         dueDate: form.dueDate ? new Date(form.dueDate).toISOString() : null,
       })
-      tasks.value.push(task)
+      if (!statusFilter.value || statusFilter.value === task.status) tasks.value.push(task)
       return true
     } catch (requestError) {
       formError.value = requestError.message
@@ -69,6 +75,9 @@ export function useTasks() {
     try {
       const updatedTask = await changeTaskStatus(task.id, status)
       Object.assign(task, updatedTask)
+      if (statusFilter.value && statusFilter.value !== updatedTask.status) {
+        tasks.value = tasks.value.filter((item) => item.id !== task.id)
+      }
     } catch (requestError) {
       error.value = requestError.message
     } finally {
@@ -87,10 +96,11 @@ export function useTasks() {
     }
   }
 
-  onMounted(loadTasks)
+  onMounted(() => loadTasks(true))
+  watch(statusFilter, () => loadTasks())
 
   return {
-    tasks, loading, submitting, updatingTaskId, error, formError, dueToasts,
+    tasks, statusFilter, loading, submitting, updatingTaskId, error, formError, dueToasts,
     addTask, updateStatus, deleteTask, dismissToast,
   }
 }

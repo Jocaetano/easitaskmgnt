@@ -20,8 +20,11 @@ See [TASK.md](./TASK.md) for the full assignment instructions and acceptance cri
 | Method | Endpoint | Description |
 | --- | --- | --- |
 | `POST` | `/tasks` | Create a task with a generated ID and `pending` status |
-| `GET` | `/tasks` | Return all tasks |
+| `GET` | `/tasks` | Return all tasks; optionally filter with `?status=pending`, `?status=in-progress`, or `?status=completed` |
 | `PATCH` | `/tasks/:id` | Change a task to `pending`, `in-progress`, or `completed` |
+
+The task list has three mutually exclusive status filters. Select one to request only
+tasks in that state, or select it again to clear the filter and show every task.
 
 ### Task model
 

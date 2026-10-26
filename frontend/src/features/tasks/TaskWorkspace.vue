@@ -9,6 +9,7 @@ import TaskList from './components/TaskList.vue'
 const modalOpen = ref(false)
 const {
   tasks,
+  statusFilter,
   loading,
   submitting,
   updatingTaskId,
@@ -48,6 +49,7 @@ function handleDelete(task) {
       <TaskHeader @add="openModal" />
       <TaskList
         :tasks="tasks"
+        v-model:status-filter="statusFilter"
         :loading="loading"
         :error="error"
         :updating-task-id="updatingTaskId"

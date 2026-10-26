@@ -15,8 +15,17 @@ export function createApp() {
     customSiteTitle: 'Task Manager API Docs',
   }))
 
-  app.get('/tasks', (_request, response) => {
-    response.json(tasks)
+  app.get('/tasks', (request, response) => {
+    const { status } = request.query
+
+    if (status !== undefined && !['pending', 'in-progress', 'completed'].includes(status)) {
+      return response.status(400).json({
+        message: 'Status must be pending, in-progress, or completed.',
+      })
+    }
+
+    const filteredTasks = status ? tasks.filter((task) => task.status === status) : tasks
+    return response.json(filteredTasks)
   })
 
   app.post('/tasks', (request, response) => {

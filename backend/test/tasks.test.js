@@ -25,6 +25,35 @@ describe('task API', () => {
     assert.deepEqual(response.body, [])
   })
 
+  it('filters tasks by status and returns all tasks when no status is selected', async () => {
+    const pending = await request(app).post('/tasks').send({ title: 'Pending task' }).expect(201)
+    const inProgress = await request(app).post('/tasks').send({ title: 'In-progress task' }).expect(201)
+    await request(app)
+      .patch(`/tasks/${inProgress.body.id}`)
+      .send({ status: 'in-progress' })
+      .expect(200)
+    const completed = await request(app).post('/tasks').send({ title: 'Completed task' }).expect(201)
+    await request(app)
+      .patch(`/tasks/${completed.body.id}`)
+      .send({ status: 'completed' })
+      .expect(200)
+
+    const filtered = await request(app).get('/tasks?status=in-progress').expect(200)
+    assert.deepEqual(filtered.body.map((task) => task.id), [inProgress.body.id])
+
+    const allTasks = await request(app).get('/tasks').expect(200)
+    assert.deepEqual(allTasks.body.map((task) => task.id), [
+      pending.body.id,
+      inProgress.body.id,
+      completed.body.id,
+    ])
+  })
+
+  it('rejects an unsupported task status filter', async () => {
+    const response = await request(app).get('/tasks?status=unknown').expect(400)
+    assert.equal(response.body.message, 'Status must be pending, in-progress, or completed.')
+  })
+
   it('creates and returns a task', async () => {
     const dueDate = '2026-10-05T12:00:00.000Z'
     const response = await request(app)

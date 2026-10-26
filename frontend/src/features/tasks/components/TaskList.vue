@@ -10,11 +10,21 @@ const props = defineProps({
   error: { type: String, default: '' },
   updatingTaskId: { type: Number, default: null },
   onTaskDelete: { type: Function, required: true },
+  statusFilter: { type: String, default: '' },
 })
-defineEmits(['add', 'status-change'])
+const emit = defineEmits(['add', 'status-change', 'update:statusFilter'])
 
 const sortBy = ref('updatedAt')
 const sortedTasks = computed(() => sortTasks(props.tasks, sortBy.value))
+const statusOptions = [
+  { value: 'pending', label: 'Pending' },
+  { value: 'in-progress', label: 'In progress' },
+  { value: 'completed', label: 'Completed' },
+]
+
+function toggleStatusFilter(status) {
+  emit('update:statusFilter', props.statusFilter === status ? '' : status)
+}
 </script>
 
 <template>
@@ -31,6 +41,23 @@ const sortedTasks = computed(() => sortTasks(props.tasks, sortBy.value))
       </div>
     </header>
 
+    <div class="flex shrink-0 flex-wrap gap-2 border-b border-slate-200 px-5 py-3" aria-label="Filter tasks by status">
+      <button
+        v-for="option in statusOptions"
+        :key="option.value"
+        type="button"
+        :aria-label="`Filter by ${option.label}`"
+        :aria-pressed="statusFilter === option.value"
+        class="rounded-full border px-3 py-1.5 text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1"
+        :class="statusFilter === option.value
+          ? 'border-indigo-600 bg-indigo-600 text-white'
+          : 'border-slate-300 bg-white text-slate-600 hover:bg-slate-50'"
+        @click="toggleStatusFilter(option.value)"
+      >
+        {{ option.label }}
+      </button>
+    </div>
+
     <p v-if="error" class="mx-4 mt-4 shrink-0 rounded-lg bg-red-50 p-3 text-sm text-red-700 ring-1 ring-red-200">
       {{ error }}
     </p>
@@ -44,9 +71,24 @@ const sortedTasks = computed(() => sortTasks(props.tasks, sortBy.value))
         v-else-if="tasks.length === 0"
         class="flex h-full min-h-52 flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-300 p-10 text-center"
       >
-        <p class="font-semibold text-slate-700">No tasks yet</p>
-        <p class="mt-1 text-sm text-slate-500">Create your first task to get started.</p>
-        <button type="button" class="mt-4 font-semibold text-indigo-600 hover:text-indigo-700" @click="$emit('add')">
+        <p class="font-semibold text-slate-700">{{ statusFilter ? 'No matching tasks' : 'No tasks yet' }}</p>
+        <p class="mt-1 text-sm text-slate-500">
+          {{ statusFilter ? 'Try another status or clear the filter.' : 'Create your first task to get started.' }}
+        </p>
+        <button
+          v-if="statusFilter"
+          type="button"
+          class="mt-4 font-semibold text-indigo-600 hover:text-indigo-700"
+          @click="toggleStatusFilter(statusFilter)"
+        >
+          Clear status filter
+        </button>
+        <button
+          v-else
+          type="button"
+          class="mt-4 font-semibold text-indigo-600 hover:text-indigo-700"
+          @click="$emit('add')"
+        >
           Add your first task
         </button>
       </div>

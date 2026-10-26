@@ -1,8 +1,33 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { deleteTask } from './tasksApi'
+import { deleteTask, fetchTasks } from './tasksApi'
 
 afterEach(() => {
   vi.unstubAllGlobals()
+})
+
+describe('fetchTasks', () => {
+  it('requests all tasks when no status is selected', async () => {
+    const fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      text: async () => '[]',
+    })
+    vi.stubGlobal('fetch', fetch)
+
+    await expect(fetchTasks()).resolves.toEqual([])
+    expect(fetch).toHaveBeenCalledWith('/tasks')
+  })
+
+  it('sends the selected status as a query parameter', async () => {
+    const fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      text: async () => '[]',
+    })
+    vi.stubGlobal('fetch', fetch)
+
+    await fetchTasks('in-progress')
+
+    expect(fetch).toHaveBeenCalledWith('/tasks?status=in-progress')
+  })
 })
 
 describe('deleteTask', () => {
