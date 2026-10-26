@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import TaskCard from './TaskCard.vue'
 
 function task(overrides = {}) {
@@ -17,7 +17,7 @@ function task(overrides = {}) {
 describe('TaskCard', () => {
   it('emits an in-progress status when Start is clicked', async () => {
     const item = task()
-    const wrapper = mount(TaskCard, { props: { task: item } })
+    const wrapper = mount(TaskCard, { props: { task: item, onDelete: vi.fn() } })
 
     await wrapper.get('button[aria-label="Start task"]').trigger('click')
 
@@ -25,24 +25,27 @@ describe('TaskCard', () => {
   })
 
   it('shows pause and complete actions for an in-progress task', () => {
-    const wrapper = mount(TaskCard, { props: { task: task({ status: 'in-progress' }) } })
+    const wrapper = mount(TaskCard, {
+      props: { task: task({ status: 'in-progress' }), onDelete: vi.fn() },
+    })
 
     expect(wrapper.get('button[aria-label="Pause task"]').exists()).toBe(true)
     expect(wrapper.text()).toContain('Complete')
   })
 
-  it('emits the task when Delete is clicked', async () => {
+  it('passes the task to the delete handler when Delete is clicked', async () => {
     const item = task()
-    const wrapper = mount(TaskCard, { props: { task: item } })
+    const onDelete = vi.fn()
+    const wrapper = mount(TaskCard, { props: { task: item, onDelete } })
 
     await wrapper.get('button[aria-label="Delete task"]').trigger('click')
 
-    expect(wrapper.emitted('delete')).toEqual([[item]])
+    expect(onDelete).toHaveBeenCalledWith(item)
   })
 
-  it('disables Delete while the task is being updated or another task is deleting', () => {
+  it('disables Delete while the task is being updated', () => {
     const wrapper = mount(TaskCard, {
-      props: { task: task(), deleteDisabled: true },
+      props: { task: task(), onDelete: vi.fn(), updating: true },
     })
 
     expect(wrapper.get('button[aria-label="Delete task"]').attributes('disabled')).toBeDefined()
@@ -51,7 +54,9 @@ describe('TaskCard', () => {
   it('expands and shortens a long description', async () => {
     const finalMarker = 'ZZZ-FINAL-MARKER'
     const description = `Beginning ${'long description '.repeat(20)}${finalMarker}`
-    const wrapper = mount(TaskCard, { props: { task: task({ description }) } })
+    const wrapper = mount(TaskCard, {
+      props: { task: task({ description }), onDelete: vi.fn() },
+    })
 
     expect(wrapper.text()).not.toContain(finalMarker)
     await wrapper.get('button[aria-label^="Expand description"]').trigger('click')

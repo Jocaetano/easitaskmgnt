@@ -12,7 +12,6 @@ const {
   loading,
   submitting,
   updatingTaskId,
-  deletingTaskId,
   error,
   formError,
   dueToasts,
@@ -36,9 +35,8 @@ async function handleAdd(form) {
 }
 
 function handleDelete(task) {
-  if (window.confirm(`Delete "${task.title}"? This action cannot be undone.`)) {
-    deleteTask(task)
-  }
+  if (!window.confirm(`Delete "${task.title}"? This action cannot be undone.`)) return
+  return deleteTask(task)
 }
 </script>
 
@@ -53,10 +51,9 @@ function handleDelete(task) {
         :loading="loading"
         :error="error"
         :updating-task-id="updatingTaskId"
-        :deleting-task-id="deletingTaskId"
+        :on-task-delete="handleDelete"
         @add="openModal"
         @status-change="updateStatus"
-        @task-delete="handleDelete"
       />
     </section>
 

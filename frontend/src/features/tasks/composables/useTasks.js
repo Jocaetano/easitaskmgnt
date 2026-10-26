@@ -6,7 +6,6 @@ export function useTasks() {
   const loading = ref(true)
   const submitting = ref(false)
   const updatingTaskId = ref(null)
-  const deletingTaskId = ref(null)
   const error = ref('')
   const formError = ref('')
   const dueToasts = ref([])
@@ -79,22 +78,19 @@ export function useTasks() {
 
   async function deleteTask(task) {
     error.value = ''
-    deletingTaskId.value = task.id
     try {
       await requestDeleteTask(task.id)
       tasks.value = tasks.value.filter((item) => item.id !== task.id)
       dismissToast(task.id)
     } catch (requestError) {
       error.value = requestError.message
-    } finally {
-      deletingTaskId.value = null
     }
   }
 
   onMounted(loadTasks)
 
   return {
-    tasks, loading, submitting, updatingTaskId, deletingTaskId, error, formError, dueToasts,
+    tasks, loading, submitting, updatingTaskId, error, formError, dueToasts,
     addTask, updateStatus, deleteTask, dismissToast,
   }
 }
