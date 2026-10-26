@@ -47,3 +47,10 @@ export async function changeTaskStatus(taskId, status) {
   })
   return readResponse(response, 'Unable to update the task.')
 }
+
+export async function deleteTask(taskId) {
+  const response = await fetch(`/tasks/${taskId}`, { method: 'DELETE' })
+  if (!response.ok) {
+    return readResponse(response, 'Unable to delete the task.')
+  }
+}

@@ -12,11 +12,13 @@ const {
   loading,
   submitting,
   updatingTaskId,
+  deletingTaskId,
   error,
   formError,
   dueToasts,
   addTask,
   updateStatus,
+  deleteTask,
   dismissToast,
 } = useTasks()
 
@@ -32,6 +34,12 @@ function closeModal() {
 async function handleAdd(form) {
   if (await addTask(form)) modalOpen.value = false
 }
+
+function handleDelete(task) {
+  if (window.confirm(`Delete "${task.title}"? This action cannot be undone.`)) {
+    deleteTask(task)
+  }
+}
 </script>
 
 <template>
@@ -45,8 +53,10 @@ async function handleAdd(form) {
         :loading="loading"
         :error="error"
         :updating-task-id="updatingTaskId"
+        :deleting-task-id="deletingTaskId"
         @add="openModal"
         @status-change="updateStatus"
+        @task-delete="handleDelete"
       />
     </section>
 

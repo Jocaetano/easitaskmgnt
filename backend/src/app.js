@@ -61,5 +61,16 @@ export function createApp() {
     return response.json(task)
   })
 
+  app.delete('/tasks/:id', (request, response) => {
+    const taskIndex = tasks.findIndex((item) => item.id === Number(request.params.id))
+
+    if (taskIndex === -1) {
+      return response.status(404).json({ message: 'Task not found.' })
+    }
+
+    tasks.splice(taskIndex, 1)
+    return response.status(204).end()
+  })
+
   return app
 }

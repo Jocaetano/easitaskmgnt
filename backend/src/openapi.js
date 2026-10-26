@@ -3,7 +3,7 @@ export const openApiSpec = {
   info: {
     title: 'Task Manager API',
     version: '1.0.0',
-    description: 'API for creating, listing, and updating tasks.',
+    description: 'API for creating, listing, updating, and deleting tasks.',
   },
   servers: [{ url: 'http://localhost:3000', description: 'Local development' }],
   tags: [{ name: 'Tasks', description: 'Task management operations' }],
@@ -81,6 +81,25 @@ export const openApiSpec = {
               'application/json': { schema: { $ref: '#/components/schemas/Error' } },
             },
           },
+          404: {
+            description: 'Task not found',
+            content: {
+              'application/json': { schema: { $ref: '#/components/schemas/Error' } },
+            },
+          },
+        },
+      },
+      delete: {
+        tags: ['Tasks'],
+        summary: 'Delete a task',
+        parameters: [{
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'integer', minimum: 1 },
+        }],
+        responses: {
+          204: { description: 'Task deleted' },
           404: {
             description: 'Task not found',
             content: {

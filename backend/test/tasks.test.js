@@ -14,6 +14,7 @@ describe('task API', () => {
     const schema = await request(app).get('/api-docs.json').expect(200)
     assert.equal(schema.body.openapi, '3.1.0')
     assert.ok(schema.body.paths['/tasks'])
+    assert.ok(schema.body.paths['/tasks/{id}'].delete)
 
     const docs = await request(app).get('/api-docs/').expect(200)
     assert.match(docs.text, /Task Manager API Docs/)
@@ -63,5 +64,18 @@ describe('task API', () => {
     await request(app).patch('/tasks/999').send({ status: 'pending' }).expect(404)
     const created = await request(app).post('/tasks').send({ title: 'Task' }).expect(201)
     await request(app).patch(`/tasks/${created.body.id}`).send({ status: 'unknown' }).expect(400)
+  })
+
+  it('deletes a task and removes it from the task list', async () => {
+    const created = await request(app).post('/tasks').send({ title: 'Delete me' }).expect(201)
+
+    await request(app).delete(`/tasks/${created.body.id}`).expect(204)
+
+    const list = await request(app).get('/tasks').expect(200)
+    assert.deepEqual(list.body, [])
+  })
+
+  it('rejects deletion of an unknown task', async () => {
+    await request(app).delete('/tasks/999').expect(404)
   })
 })

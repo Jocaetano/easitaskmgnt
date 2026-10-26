@@ -5,8 +5,10 @@ import { formatDate, isOverdue, statusClasses, statusLabel } from '../utils/task
 defineProps({
   task: { type: Object, required: true },
   updating: { type: Boolean, default: false },
+  deleting: { type: Boolean, default: false },
+  deleteDisabled: { type: Boolean, default: false },
 })
-defineEmits(['status-change'])
+defineEmits(['status-change', 'delete'])
 
 const expanded = ref(false)
 const previewLength = 160
@@ -61,11 +63,11 @@ function shortDescription(description) {
         </div>
       </div>
 
-      <div v-if="task.status !== 'completed'" class="flex shrink-0 flex-wrap gap-2">
+      <div class="flex shrink-0 flex-wrap gap-2">
         <button
           v-if="task.status === 'pending'"
           type="button"
-          :disabled="updating"
+          :disabled="updating || deleting"
           class="inline-flex items-center gap-2 rounded-lg border border-blue-300 px-3 py-2 text-sm font-semibold text-blue-700 transition hover:bg-blue-50 disabled:cursor-wait disabled:opacity-50"
           aria-label="Start task"
           title="Start task"
@@ -80,7 +82,7 @@ function shortDescription(description) {
         <button
           v-if="task.status === 'in-progress'"
           type="button"
-          :disabled="updating"
+          :disabled="updating || deleting"
           class="inline-flex items-center gap-2 rounded-lg border border-amber-300 px-3 py-2 text-sm font-semibold text-amber-700 transition hover:bg-amber-50 disabled:cursor-wait disabled:opacity-50"
           aria-label="Pause task"
           title="Pause task"
@@ -96,7 +98,7 @@ function shortDescription(description) {
         <button
           v-if="task.status === 'in-progress'"
           type="button"
-          :disabled="updating"
+          :disabled="updating || deleting"
           class="inline-flex items-center gap-2 rounded-lg border border-emerald-300 px-3 py-2 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-50 disabled:cursor-wait disabled:opacity-50"
           @click="$emit('status-change', task, 'completed')"
         >
@@ -104,6 +106,16 @@ function shortDescription(description) {
             <path fill-rule="evenodd" d="M16.7 5.3a1 1 0 0 1 0 1.4l-8 8a1 1 0 0 1-1.4 0l-4-4a1 1 0 1 1 1.4-1.4L8 12.6l7.3-7.3a1 1 0 0 1 1.4 0Z" clip-rule="evenodd" />
           </svg>
           Complete
+        </button>
+        <button
+          type="button"
+          :disabled="updating || deleteDisabled"
+          class="inline-flex items-center gap-2 rounded-lg border border-red-300 px-3 py-2 text-sm font-semibold text-red-700 transition hover:bg-red-50 disabled:cursor-wait disabled:opacity-50"
+          aria-label="Delete task"
+          title="Delete task"
+          @click="$emit('delete', task)"
+        >
+          {{ deleting ? 'Deleting...' : 'Delete' }}
         </button>
       </div>
     </div>

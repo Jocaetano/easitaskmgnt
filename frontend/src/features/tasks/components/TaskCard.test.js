@@ -31,6 +31,23 @@ describe('TaskCard', () => {
     expect(wrapper.text()).toContain('Complete')
   })
 
+  it('emits the task when Delete is clicked', async () => {
+    const item = task()
+    const wrapper = mount(TaskCard, { props: { task: item } })
+
+    await wrapper.get('button[aria-label="Delete task"]').trigger('click')
+
+    expect(wrapper.emitted('delete')).toEqual([[item]])
+  })
+
+  it('disables Delete while the task is being updated or another task is deleting', () => {
+    const wrapper = mount(TaskCard, {
+      props: { task: task(), deleteDisabled: true },
+    })
+
+    expect(wrapper.get('button[aria-label="Delete task"]').attributes('disabled')).toBeDefined()
+  })
+
   it('expands and shortens a long description', async () => {
     const finalMarker = 'ZZZ-FINAL-MARKER'
     const description = `Beginning ${'long description '.repeat(20)}${finalMarker}`

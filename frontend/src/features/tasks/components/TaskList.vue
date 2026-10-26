@@ -9,8 +9,9 @@ const props = defineProps({
   loading: { type: Boolean, required: true },
   error: { type: String, default: '' },
   updatingTaskId: { type: Number, default: null },
+  deletingTaskId: { type: Number, default: null },
 })
-defineEmits(['add', 'status-change'])
+defineEmits(['add', 'status-change', 'task-delete'])
 
 const sortBy = ref('updatedAt')
 const sortedTasks = computed(() => sortTasks(props.tasks, sortBy.value))
@@ -55,7 +56,10 @@ const sortedTasks = computed(() => sortTasks(props.tasks, sortBy.value))
           <TaskCard
             :task="task"
             :updating="updatingTaskId === task.id"
+            :deleting="deletingTaskId === task.id"
+            :delete-disabled="deletingTaskId !== null"
             @status-change="(item, status) => $emit('status-change', item, status)"
+            @delete="(item) => $emit('task-delete', item)"
           />
         </li>
       </ul>
