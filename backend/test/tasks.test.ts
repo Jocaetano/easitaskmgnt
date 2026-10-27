@@ -1,10 +1,11 @@
 import assert from 'node:assert/strict'
 import { beforeEach, describe, it } from 'node:test'
 import request from 'supertest'
+import type { Task, TaskStatus } from '../../shared/task.js'
 import { createApp } from '../src/app.js'
 
 describe('task API', () => {
-  let app
+  let app: ReturnType<typeof createApp>
 
   beforeEach(() => {
     app = createApp()
@@ -39,10 +40,10 @@ describe('task API', () => {
       .expect(200)
 
     const filtered = await request(app).get('/tasks?status=in-progress').expect(200)
-    assert.deepEqual(filtered.body.map((task) => task.id), [inProgress.body.id])
+    assert.deepEqual(filtered.body.map((task: Task) => task.id), [inProgress.body.id])
 
     const allTasks = await request(app).get('/tasks').expect(200)
-    assert.deepEqual(allTasks.body.map((task) => task.id), [
+    assert.deepEqual(allTasks.body.map((task: Task) => task.id), [
       pending.body.id,
       inProgress.body.id,
       completed.body.id,
@@ -75,12 +76,15 @@ describe('task API', () => {
   it('rejects a missing title or invalid due date', async () => {
     await request(app).post('/tasks').send({ title: '  ' }).expect(400)
     await request(app).post('/tasks').send({ title: 'Task', dueDate: 'invalid' }).expect(400)
+    await request(app).post('/tasks').send({ title: 'Task', description: 12 }).expect(400)
+    await request(app).post('/tasks').send({ title: 'Task', dueDate: 12 }).expect(400)
   })
 
   it('moves a task through all supported statuses', async () => {
     const created = await request(app).post('/tasks').send({ title: 'Workflow' }).expect(201)
 
-    for (const status of ['in-progress', 'pending', 'completed']) {
+    const statuses: TaskStatus[] = ['in-progress', 'pending', 'completed']
+    for (const status of statuses) {
       const response = await request(app)
         .patch(`/tasks/${created.body.id}`)
         .send({ status })
