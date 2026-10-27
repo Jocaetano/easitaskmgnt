@@ -1,9 +1,20 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { deleteTask, fetchTasks } from './tasksApi'
+import { changeTaskStatus, createTask, deleteTask, fetchTasks } from './tasksApi'
 
 afterEach(() => {
   vi.unstubAllGlobals()
 })
+
+if (false) {
+  // @ts-expect-error Status values must match the shared TaskStatus union.
+  fetchTasks('started')
+  // @ts-expect-error Task identifiers are numbers.
+  changeTaskStatus('4', 'pending')
+  // @ts-expect-error A task title must be a string.
+  createTask({ title: 12 })
+  // @ts-expect-error Deletion requires a numeric task identifier.
+  deleteTask('4')
+}
 
 describe('fetchTasks', () => {
   it('requests all tasks when no status is selected', async () => {

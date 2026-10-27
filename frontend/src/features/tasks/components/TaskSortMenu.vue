@@ -1,14 +1,15 @@
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue'
+import type { TaskSortKey } from '../utils/taskFormatters'
 
-defineProps({
-  modelValue: { type: String, required: true },
-  compact: { type: Boolean, default: false },
-})
-const emit = defineEmits(['update:modelValue'])
+withDefaults(defineProps<{
+  modelValue: TaskSortKey
+  compact?: boolean
+}>(), { compact: false })
+const emit = defineEmits<{ 'update:modelValue': [value: TaskSortKey] }>()
 const open = ref(false)
 
-function select(value) {
+function select(value: TaskSortKey): void {
   emit('update:modelValue', value)
   open.value = false
 }

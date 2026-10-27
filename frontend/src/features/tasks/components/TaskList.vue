@@ -1,28 +1,38 @@
-<script setup>
+<script setup lang="ts">
 import { computed, ref } from 'vue'
 import { sortTasks } from '../utils/taskFormatters'
+import type { TaskSortKey } from '../utils/taskFormatters'
+import type { Task, TaskStatus } from '../../../../../shared/task'
 import TaskCard from './TaskCard.vue'
 import TaskSortMenu from './TaskSortMenu.vue'
 
-const props = defineProps({
-  tasks: { type: Array, required: true },
-  loading: { type: Boolean, required: true },
-  error: { type: String, default: '' },
-  updatingTaskId: { type: Number, default: null },
-  onTaskDelete: { type: Function, required: true },
-  statusFilter: { type: String, default: '' },
+const props = withDefaults(defineProps<{
+  tasks: Task[]
+  loading: boolean
+  error?: string
+  updatingTaskId?: number | null
+  onTaskDelete: (task: Task) => void | Promise<void>
+  statusFilter?: TaskStatus | ''
+}>(), {
+  error: '',
+  updatingTaskId: null,
+  statusFilter: '',
 })
-const emit = defineEmits(['add', 'status-change', 'update:statusFilter'])
+const emit = defineEmits<{
+  add: []
+  'status-change': [task: Task, status: TaskStatus]
+  'update:statusFilter': [status: TaskStatus | '']
+}>()
 
-const sortBy = ref('updatedAt')
+const sortBy = ref<TaskSortKey>('updatedAt')
 const sortedTasks = computed(() => sortTasks(props.tasks, sortBy.value))
-const statusOptions = [
+const statusOptions: { value: TaskStatus; label: string }[] = [
   { value: 'pending', label: 'Pending' },
   { value: 'in-progress', label: 'In progress' },
   { value: 'completed', label: 'Completed' },
 ]
 
-function toggleStatusFilter(status) {
+function toggleStatusFilter(status: TaskStatus): void {
   emit('update:statusFilter', props.statusFilter === status ? '' : status)
 }
 </script>

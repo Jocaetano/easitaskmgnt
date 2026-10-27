@@ -1,23 +1,24 @@
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue'
 import { formatDate, isOverdue, statusClasses, statusLabel } from '../utils/taskFormatters'
+import type { Task, TaskStatus } from '../../../../../shared/task'
 import DeleteTaskButton from './DeleteTaskButton.vue'
 
-const props = defineProps({
-  task: { type: Object, required: true },
-  updating: { type: Boolean, default: false },
-  onDelete: { type: Function, required: true },
-})
-defineEmits(['status-change'])
+const props = withDefaults(defineProps<{
+  task: Task
+  updating?: boolean
+  onDelete: (task: Task) => void | Promise<void>
+}>(), { updating: false })
+defineEmits<{ 'status-change': [task: Task, status: TaskStatus] }>()
 
 const expanded = ref(false)
 const previewLength = 160
 
-function isLong(description) {
+function isLong(description: string): boolean {
   return description.length > previewLength
 }
 
-function shortDescription(description) {
+function shortDescription(description: string): string {
   const preview = description.slice(0, previewLength)
   const lastSpace = preview.lastIndexOf(' ')
   return lastSpace > previewLength * 0.7 ? preview.slice(0, lastSpace) : preview

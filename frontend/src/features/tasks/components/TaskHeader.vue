@@ -1,5 +1,5 @@
-<script setup>
-defineEmits(['add'])
+<script setup lang="ts">
+defineEmits<{ add: [] }>()
 </script>
 
 <template>

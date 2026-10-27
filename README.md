@@ -1,6 +1,6 @@
 # Task Manager
 
-A small full-stack Task Manager assignment built with a Node.js API, Vue 3, and Tailwind CSS. Users can add tasks and view each task's current status in a responsive interface.
+A small full-stack Task Manager built with a TypeScript Node.js API, Vue 3, and Tailwind CSS. Shared task contracts keep frontend API calls and backend models aligned, and type-checking catches invalid endpoint arguments at build time.
 
 See [TASK.md](./TASK.md) for the full assignment instructions and acceptance criteria.
 
@@ -46,12 +46,14 @@ easitaskmgnt/
 ├── backend/
 │   ├── package.json
 │   └── src/
-│       └── server.js
+│       └── server.ts
 ├── frontend/
 │   ├── package.json
 │   └── src/
 │       ├── App.vue
-│       └── main.js
+│       └── main.ts
+├── shared/
+│   └── task.ts
 ├── README.md
 └── TASK.md
 ```
@@ -66,7 +68,7 @@ features/tasks/
 ├── components/      # Focused task UI components
 ├── composables/     # Task state and business workflows
 ├── utils/           # Formatting and sorting helpers
-├── index.js         # Public feature entry point
+├── index.ts         # Public feature entry point
 └── TaskWorkspace.vue
 ```
 
@@ -102,10 +104,11 @@ Backend API documentation is available at:
 Other root commands:
 
 ```bash
-npm run build   # Build the Vue frontend
-npm start       # Start only the Express backend
-npm test        # Run all backend and frontend tests
-npm run lint    # Lint backend, frontend, and tests
+npm run build      # Type-check and build backend and frontend
+npm run typecheck  # Type-check backend, frontend, and tests
+npm start          # Start the compiled Express backend (run npm run build first)
+npm test           # Run all backend and frontend tests
+npm run lint       # Lint backend, frontend, and tests
 ```
 
 ## Time spent
@@ -143,11 +146,15 @@ Given more time, the next improvements would be:
 ## Testing
 
 The backend uses Node's test runner with Supertest for API integration tests. The frontend uses Vitest, Vue Test Utils, and jsdom for unit and component tests.
+The backend and frontend import task models and allowed statuses from `shared/task.ts`.
+The typed frontend API functions accept only valid task statuses, task IDs, and request
+payloads; `npm run typecheck` verifies these contracts in the application and tests.
 
 ```bash
 npm test                 # All tests
 npm run test:backend     # API tests only
 npm run test:frontend    # Vue tests only
+npm run typecheck        # Type-check application code and tests
 ```
 
 ## Linting

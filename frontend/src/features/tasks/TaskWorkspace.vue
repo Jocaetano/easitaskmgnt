@@ -1,6 +1,8 @@
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue'
 import { useTasks } from './composables/useTasks'
+import type { TaskForm } from './composables/useTasks'
+import type { Task } from '../../../../shared/task'
 import AddTaskModal from './components/AddTaskModal.vue'
 import DueToastStack from './components/DueToastStack.vue'
 import TaskHeader from './components/TaskHeader.vue'
@@ -22,20 +24,20 @@ const {
   dismissToast,
 } = useTasks()
 
-function openModal() {
+function openModal(): void {
   formError.value = ''
   modalOpen.value = true
 }
 
-function closeModal() {
+function closeModal(): void {
   if (!submitting.value) modalOpen.value = false
 }
 
-async function handleAdd(form) {
+async function handleAdd(form: TaskForm): Promise<void> {
   if (await addTask(form)) modalOpen.value = false
 }
 
-function handleDelete(task) {
+function handleDelete(task: Task): void | Promise<void> {
   if (!window.confirm(`Delete "${task.title}"? This action cannot be undone.`)) return
   return deleteTask(task)
 }

@@ -1,15 +1,16 @@
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue'
+import type { Task } from '../../../../../shared/task'
 
-const props = defineProps({
-  task: { type: Object, required: true },
-  onDelete: { type: Function, required: true },
-  disabled: { type: Boolean, default: false },
-})
+const props = withDefaults(defineProps<{
+  task: Task
+  onDelete: (task: Task) => void | Promise<void>
+  disabled?: boolean
+}>(), { disabled: false })
 
 const deleting = ref(false)
 
-async function handleDelete() {
+async function handleDelete(): Promise<void> {
   if (deleting.value || props.disabled) return
 
   deleting.value = true

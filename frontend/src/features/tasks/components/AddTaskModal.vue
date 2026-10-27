@@ -1,16 +1,23 @@
-<script setup>
+<script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue'
+import type { TaskForm } from '../composables/useTasks'
 
-defineProps({
-  submitting: { type: Boolean, default: false },
-  error: { type: String, default: '' },
+withDefaults(defineProps<{
+  submitting?: boolean
+  error?: string
+}>(), {
+  submitting: false,
+  error: '',
 })
-const emit = defineEmits(['close', 'submit'])
+const emit = defineEmits<{
+  close: []
+  submit: [form: TaskForm]
+}>()
 
-const titleInput = ref(null)
-const form = reactive({ title: '', description: '', dueDate: '' })
+const titleInput = ref<HTMLInputElement | null>(null)
+const form = reactive<TaskForm>({ title: '', description: '', dueDate: '' })
 
-function submit() {
+function submit(): void {
   if (!form.title.trim()) return
   emit('submit', { ...form })
 }

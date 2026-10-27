@@ -1,4 +1,6 @@
-export function formatDate(value) {
+import type { Task, TaskStatus } from '../../../../../shared/task'
+
+export function formatDate(value: string | null): string {
   if (!value) return 'No due date'
   return new Intl.DateTimeFormat(undefined, {
     dateStyle: 'medium',
@@ -6,21 +8,23 @@ export function formatDate(value) {
   }).format(new Date(value))
 }
 
-export function isOverdue(value) {
-  return Boolean(value) && new Date(value).getTime() < Date.now()
+export function isOverdue(value: string | null): boolean {
+  return value !== null && new Date(value).getTime() < Date.now()
 }
 
-export function statusLabel(status) {
+export function statusLabel(status: TaskStatus): string {
   return status === 'in-progress' ? 'In progress' : status
 }
 
-export function statusClasses(status) {
+export function statusClasses(status: TaskStatus): string {
   if (status === 'completed') return 'bg-emerald-100 text-emerald-700'
   if (status === 'in-progress') return 'bg-blue-100 text-blue-700'
   return 'bg-amber-100 text-amber-700'
 }
 
-export function sortTasks(tasks, sortBy) {
+export type TaskSortKey = 'updatedAt' | 'dueDate'
+
+export function sortTasks(tasks: Task[], sortBy: TaskSortKey): Task[] {
   return [...tasks].sort((firstTask, secondTask) => {
     if (sortBy === 'dueDate') {
       if (!firstTask.dueDate && !secondTask.dueDate) {
@@ -34,6 +38,6 @@ export function sortTasks(tasks, sortBy) {
   })
 }
 
-function dateValue(value) {
+function dateValue(value: string): number {
   return new Date(value).getTime()
 }

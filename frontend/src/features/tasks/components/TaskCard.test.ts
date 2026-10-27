@@ -1,8 +1,9 @@
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
+import type { Task } from '../../../../../shared/task'
 import TaskCard from './TaskCard.vue'
 
-function task(overrides = {}) {
+function task(overrides: Partial<Task> = {}): Task {
   return {
     id: 1,
     title: 'Test task',
@@ -21,7 +22,7 @@ describe('TaskCard', () => {
 
     await wrapper.get('button[aria-label="Start task"]').trigger('click')
 
-    expect(wrapper.emitted('status-change')[0]).toEqual([item, 'in-progress'])
+    expect(wrapper.emitted('status-change')?.[0]).toEqual([item, 'in-progress'])
   })
 
   it('shows pause and complete actions for an in-progress task', () => {
@@ -29,7 +30,7 @@ describe('TaskCard', () => {
       props: { task: task({ status: 'in-progress' }), onDelete: vi.fn() },
     })
 
-    expect(wrapper.get('button[aria-label="Pause task"]').exists()).toBe(true)
+    expect(wrapper.find('button[aria-label="Pause task"]').exists()).toBe(true)
     expect(wrapper.text()).toContain('Complete')
   })
 

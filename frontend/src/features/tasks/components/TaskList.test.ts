@@ -1,8 +1,9 @@
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
+import type { TaskStatus } from '../../../../../shared/task'
 import TaskList from './TaskList.vue'
 
-function mountTaskList(statusFilter = '') {
+function mountTaskList(statusFilter: TaskStatus | '' = '') {
   return mount(TaskList, {
     props: {
       tasks: [],

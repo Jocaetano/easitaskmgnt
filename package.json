@@ -1,14 +1,15 @@
 {
   "name": "easitaskmgnt",
   "version": "1.0.0",
-  "description": "A small full-stack Task Manager assignment built with a Node.js API, Vue 3, and Tailwind CSS. Users can add tasks and view each task's current status in a responsive interface.",
+  "description": "A full-stack Task Manager with TypeScript API contracts, Vue 3, and Tailwind CSS.",
   "private": true,
   "type": "module",
   "scripts": {
     "install:all": "npm install --prefix backend && npm install --prefix frontend",
     "dev": "concurrently -n backend,frontend -c blue,magenta \"npm run dev --prefix backend\" \"npm run dev --prefix frontend\"",
     "start": "npm run start --prefix backend",
-    "build": "npm run build --prefix frontend",
+    "build": "npm run build --prefix backend && npm run build --prefix frontend",
+    "typecheck": "npm run typecheck --prefix backend && npm run typecheck --prefix frontend",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "test": "npm run test:backend && npm run test:frontend",
@@ -31,6 +32,7 @@
     "concurrently": "^10.0.5",
     "eslint": "^10.12.0",
     "eslint-plugin-vue": "^10.11.1",
-    "globals": "^17.13.0"
+    "globals": "^17.13.0",
+    "typescript-eslint": "^8.46.0"
   }
 }

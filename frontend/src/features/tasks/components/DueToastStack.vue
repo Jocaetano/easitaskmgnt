@@ -1,8 +1,9 @@
-<script setup>
+<script setup lang="ts">
 import { formatDate } from '../utils/taskFormatters'
+import type { DueToast } from '../composables/useTasks'
 
-defineProps({ toasts: { type: Array, required: true } })
-defineEmits(['dismiss'])
+defineProps<{ toasts: DueToast[] }>()
+defineEmits<{ dismiss: [taskId: number] }>()
 </script>
 
 <template>
